@@ -16,9 +16,18 @@ const AddBook = () => {
   const [imageFile, setImageFile] = useState(null);
   const [addBook, { isLoading }] = useAddBookMutation();
   const [imageFileName, setImageFileName] = useState("");
-  const [bulkData, setBulkData] = useState([]);
-  const [bulkImportBooks, { isLoading: isBulkImportLoading }] =
-    useBulkImportBooksMutation();
+
+   const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleBulkFileChange = (e) => {
+    const file = e.target.files[0]; // Get the first file
+    if (file) {
+      setSelectedFile(file); // Store the file in state
+    } else {
+      setSelectedFile(null); // Reset if no file is selected
+    }
+  };
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -34,28 +43,45 @@ const AddBook = () => {
     return await getDownloadURL(storageRef);
   };
 
-  const handleBulkFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json(worksheet);
-        setBulkData(json);
-      };
-      reader.readAsArrayBuffer(file);
-    }
-  };
 
-  const handleBulkImport = async () => {
+const handleBulkImport = async () => {
+    if (!selectedFile) {
+      Swal.fire("Error", "Please select a file first.", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    // Log FormData entries
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
     try {
-      await bulkImportBooks({ books: bulkData }).unwrap(); // Use the mutation
-      Swal.fire("Success", "Books imported successfully!", "success");
-      setBulkData([]);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("User not authenticated");
+      }
+
+      const response = await fetch("http://localhost:5000/api/books/bulk-import", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        Swal.fire("Success", "Books imported successfully!", "success");
+        console.log("Imported books:", data);
+      } else {
+        throw new Error("Failed to import books");
+      }
     } catch (error) {
+      console.error("Bulk import failed:", error);
       Swal.fire("Error", "Failed to import books. Try again.", "error");
     }
   };
@@ -156,13 +182,12 @@ const AddBook = () => {
         <input
           type="file"
           accept=".xlsx, .csv"
-          onChange={handleBulkFileUpload}
           className="mb-2 w-full"
+            onChange={handleBulkFileChange}
         />
         <button
           onClick={handleBulkImport}
           className="w-full py-2 bg-rose-500 text-white font-bold rounded-md"
-          disabled={bulkData.length === 0}
         >
           Bulk Upload
         </button>

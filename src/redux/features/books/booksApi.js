@@ -22,6 +22,10 @@ const booksApi = createApi({
       query: () => "/",
       providesTags: ["Books"],
     }),
+    fetchBulkBooks: builder.query({
+      query: () => "/bulk",
+      providesTags: ["Books"],
+    }),
     fetchBookById: builder.query({
       query: (id) => `/${id}`,
       providesTags: (result, error, id) => [{ type: "Books", id }],
@@ -39,6 +43,9 @@ const booksApi = createApi({
         url: `/bulk-import`,
         method: "POST",
         body: bulkData,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }),
       invalidatesTags: ["Books"],
     }),
@@ -68,6 +75,7 @@ export const {
   useFetchBookByIdQuery,
   useAddBookMutation,
   useBulkImportBooksMutation,
+  useFetchBulkBooksQuery,
   useUpdateBookMutation,
   useDeleteBookMutation,
 } = booksApi;
