@@ -49,6 +49,9 @@ const booksApi = createApi({
       }),
       invalidatesTags: ["Books"],
     }),
+    fetchSingleBook: builder.query({
+      query: (bookId) => `/${bookId}`,
+    }),
     updateBook: builder.mutation({
       query: ({ id, ...rest }) => ({
         url: `/edit/${id}`,
@@ -78,5 +81,6 @@ export const {
   useFetchBulkBooksQuery,
   useUpdateBookMutation,
   useDeleteBookMutation,
+  useFetchSingleBookQuery
 } = booksApi;
 export default booksApi;

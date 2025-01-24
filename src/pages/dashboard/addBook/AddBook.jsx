@@ -4,13 +4,12 @@ import SelectField from "./SelectField";
 import { useForm } from "react-hook-form";
 import {
   useAddBookMutation,
-  useBulkImportBooksMutation,
 } from "../../../redux/features/books/booksApi";
 import Swal from "sweetalert2";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebase/firebase.config"; // Adjust the path based on your file structure
-import * as XLSX from "xlsx"; // Add this library
-
+import getBaseUrl from "../../../utils/baseURL";
+const baseUrl= `${getBaseUrl()}/api/books`
 const AddBook = () => {
   const { register, handleSubmit, reset } = useForm();
   const [imageFile, setImageFile] = useState(null);
@@ -27,7 +26,7 @@ const AddBook = () => {
       setSelectedFile(null); // Reset if no file is selected
     }
   };
-
+ console.log('Here is base URL',baseUrl)
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -53,10 +52,6 @@ const handleBulkImport = async () => {
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    // Log FormData entries
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
 
     try {
       const token = localStorage.getItem("token");
@@ -64,7 +59,7 @@ const handleBulkImport = async () => {
         throw new Error("User not authenticated");
       }
 
-      const response = await fetch("http://localhost:5000/api/books/bulk-import", {
+      const response = await fetch(`${baseUrl}/bulk-import`, {
         method: "POST",
         body: formData,
         headers: {
