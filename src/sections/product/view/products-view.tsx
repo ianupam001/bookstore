@@ -1,67 +1,44 @@
-import { useState, useCallback } from 'react';
-
+// products-view.tsx
+import { useState, useCallback, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Unstable_Grid2';
 import Pagination from '@mui/material/Pagination';
 import Typography from '@mui/material/Typography';
-
-import { _products } from 'src/_mock';
+import { BooksStats } from 'src/api/booksStats';
 import { DashboardContent } from 'src/layouts/dashboard';
-
 import { ProductItem } from '../product-item';
 import { ProductSort } from '../product-sort';
 import { CartIcon } from '../product-cart-widget';
 import { ProductFilters } from '../product-filters';
-
 import type { FiltersProps } from '../product-filters';
 
 // ----------------------------------------------------------------------
 
-const GENDER_OPTIONS = [
-  { value: 'men', label: 'Men' },
-  { value: 'women', label: 'Women' },
-  { value: 'kids', label: 'Kids' },
-];
-
 const CATEGORY_OPTIONS = [
   { value: 'all', label: 'All' },
-  { value: 'shose', label: 'Shose' },
-  { value: 'apparel', label: 'Apparel' },
-  { value: 'accessories', label: 'Accessories' },
+  { value: 'Self-Help', label: 'Self-Help' },
+  { value: 'Fiction', label: 'Fiction' },
+  { value: 'Non-Fiction', label: 'Non-Fiction' },
 ];
 
 const RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
 
 const PRICE_OPTIONS = [
-  { value: 'below', label: 'Below $25' },
-  { value: 'between', label: 'Between $25 - $75' },
-  { value: 'above', label: 'Above $75' },
-];
-
-const COLOR_OPTIONS = [
-  '#00AB55',
-  '#000000',
-  '#FFFFFF',
-  '#FFC0CB',
-  '#FF4842',
-  '#1890FF',
-  '#94D82D',
-  '#FFC107',
+  { value: 'below', label: 'Below $5' },
+  { value: 'between', label: 'Between $5 - $15' },
+  { value: 'above', label: 'Above $15' },
 ];
 
 const defaultFilters = {
   price: '',
-  gender: [GENDER_OPTIONS[0].value],
-  colors: [COLOR_OPTIONS[4]],
-  rating: RATING_OPTIONS[0],
   category: CATEGORY_OPTIONS[0].value,
+  rating: RATING_OPTIONS[0],
 };
 
 export function ProductsView() {
   const [sortBy, setSortBy] = useState('featured');
-
+  const [books, setBooks] = useState<any[]>([]);
   const [openFilter, setOpenFilter] = useState(false);
-
   const [filters, setFilters] = useState<FiltersProps>(defaultFilters);
 
   const handleOpenFilter = useCallback(() => {
@@ -84,10 +61,25 @@ export function ProductsView() {
     (key) => filters[key as keyof FiltersProps] !== defaultFilters[key as keyof FiltersProps]
   );
 
+  const fetchBooks = async () => {
+    try {
+      const response = await BooksStats.getAllBooks();
+      if (response?.data) {
+        setBooks(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
   return (
     <DashboardContent>
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Products
+        Books
       </Typography>
 
       <CartIcon totalItems={8} />
@@ -109,11 +101,9 @@ export function ProductsView() {
             onCloseFilter={handleCloseFilter}
             onResetFilter={() => setFilters(defaultFilters)}
             options={{
-              genders: GENDER_OPTIONS,
               categories: CATEGORY_OPTIONS,
               ratings: RATING_OPTIONS,
               price: PRICE_OPTIONS,
-              colors: COLOR_OPTIONS,
             }}
           />
 
@@ -131,9 +121,21 @@ export function ProductsView() {
       </Box>
 
       <Grid container spacing={3}>
-        {_products.map((product) => (
-          <Grid key={product.id} xs={12} sm={6} md={3}>
-            <ProductItem product={product} />
+        {books.map((book) => (
+          <Grid key={book._id} xs={12} sm={6} md={3}>
+            <ProductItem
+              product={{
+                id: book._id,
+                title: book.title,
+                price: book.sellingPrice,
+                status: book.status,
+                coverUrl: book.imageLinks?.[0] || '/placeholder.jpg',
+                author: book.authors?.[0],
+                currency: book.currencyName,
+                format: book.format,
+                book,
+              }}
+            />
           </Grid>
         ))}
       </Grid>

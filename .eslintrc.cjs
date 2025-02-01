@@ -25,6 +25,16 @@ module.exports = {
    * 2 ~ 'error'
    */
   rules: {
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        jsx: 'never',
+        ts: 'never',
+        tsx: 'never',
+      },
+    ],
     // general
     'no-alert': 0,
     camelcase: 0,

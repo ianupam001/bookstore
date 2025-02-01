@@ -6,24 +6,19 @@ import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import Rating from '@mui/material/Rating';
 import Divider from '@mui/material/Divider';
-import Checkbox from '@mui/material/Checkbox';
-import FormGroup from '@mui/material/FormGroup';
-import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { ColorPicker } from 'src/components/color-utils';
+import RadioGroup from '@mui/material/RadioGroup';
 
 // ----------------------------------------------------------------------
 
 export type FiltersProps = {
   price: string;
   rating: string;
-  gender: string[];
-  colors: string[];
   category: string;
 };
 
@@ -36,10 +31,8 @@ type ProductFiltersProps = {
   onResetFilter: () => void;
   onSetFilters: (updateState: Partial<FiltersProps>) => void;
   options: {
-    colors: string[];
     ratings: string[];
     categories: { value: string; label: string }[];
-    genders: { value: string; label: string }[];
     price: { value: string; label: string }[];
   };
 };
@@ -54,32 +47,6 @@ export function ProductFilters({
   onCloseFilter,
   onResetFilter,
 }: ProductFiltersProps) {
-  const renderGender = (
-    <Stack spacing={1}>
-      <Typography variant="subtitle2">Gender</Typography>
-      <FormGroup>
-        {options.genders.map((option) => (
-          <FormControlLabel
-            key={option.value}
-            control={
-              <Checkbox
-                checked={filters.gender.includes(option.value)}
-                onChange={() => {
-                  const checked = filters.gender.includes(option.value)
-                    ? filters.gender.filter((value) => value !== option.value)
-                    : [...filters.gender, option.value];
-
-                  onSetFilters({ gender: checked });
-                }}
-              />
-            }
-            label={option.label}
-          />
-        ))}
-      </FormGroup>
-    </Stack>
-  );
-
   const renderCategory = (
     <Stack spacing={1}>
       <Typography variant="subtitle2">Category</Typography>
@@ -90,7 +57,7 @@ export function ProductFilters({
             value={option.value}
             control={
               <Radio
-                checked={filters.category.includes(option.value)}
+                checked={filters.category === option.value}
                 onChange={() => onSetFilters({ category: option.value })}
               />
             }
@@ -98,18 +65,6 @@ export function ProductFilters({
           />
         ))}
       </RadioGroup>
-    </Stack>
-  );
-
-  const renderColors = (
-    <Stack spacing={1}>
-      <Typography variant="subtitle2">Colors</Typography>
-      <ColorPicker
-        selected={filters.colors}
-        onSelectColor={(colors) => onSetFilters({ colors: colors as string[] })}
-        colors={options.colors}
-        limit={6}
-      />
     </Stack>
   );
 
@@ -123,7 +78,7 @@ export function ProductFilters({
             value={option.value}
             control={
               <Radio
-                checked={filters.price.includes(option.value)}
+                checked={filters.price === option.value}
                 onChange={() => onSetFilters({ price: option.value })}
               />
             }
@@ -209,9 +164,7 @@ export function ProductFilters({
 
         <Scrollbar>
           <Stack spacing={3} sx={{ p: 3 }}>
-            {renderGender}
             {renderCategory}
-            {renderColors}
             {renderPrice}
             {renderRating}
           </Stack>
