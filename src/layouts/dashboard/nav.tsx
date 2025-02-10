@@ -1,12 +1,13 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
+import Collapse from '@mui/material/Collapse';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
@@ -26,6 +27,11 @@ export type NavContentProps = {
     title: string;
     icon: React.ReactNode;
     info?: React.ReactNode;
+    children?: {
+      path: string;
+      title: string;
+      icon: React.ReactNode;
+    }[];
   }[];
   slots?: {
     topArea?: React.ReactNode;
@@ -113,6 +119,11 @@ export function NavMobile({
 
 export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
   const pathname = usePathname();
+  const [openDropdowns, setOpenDropdowns] = useState<{ [key: string]: boolean }>({});
+
+  const toggleDropdown = (title: string) => {
+    setOpenDropdowns((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
 
   return (
     <>
@@ -124,45 +135,83 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
         <Box component="nav" display="flex" flex="1 1 auto" flexDirection="column" sx={{ my: 2 }}>
           <Box component="ul" gap={0.5} display="flex" flexDirection="column">
             {data.map((item) => {
-              const isActived = item.path === pathname;
+              const isActived = pathname.startsWith(item.path);
+              const hasChildren = item.children && item.children.length > 0;
 
               return (
-                <ListItem disableGutters disablePadding key={item.title}>
-                  <ListItemButton
-                    disableGutters
-                    component={RouterLink}
-                    href={item.path}
-                    sx={{
-                      pl: 2,
-                      py: 1,
-                      gap: 2,
-                      pr: 1.5,
-                      borderRadius: 0.75,
-                      typography: 'body2',
-                      fontWeight: 'fontWeightMedium',
-                      color: 'var(--layout-nav-item-color)',
-                      minHeight: 'var(--layout-nav-item-height)',
-                      ...(isActived && {
-                        fontWeight: 'fontWeightSemiBold',
-                        bgcolor: 'var(--layout-nav-item-active-bg)',
-                        color: 'var(--layout-nav-item-active-color)',
-                        '&:hover': {
-                          bgcolor: 'var(--layout-nav-item-hover-bg)',
-                        },
-                      }),
-                    }}
-                  >
-                    <Box component="span" sx={{ width: 24, height: 24 }}>
-                      {item.icon}
-                    </Box>
+                <Box key={item.title}>
+                  <ListItem disableGutters disablePadding>
+                    <ListItemButton
+                      disableGutters
+                      component={!hasChildren ? RouterLink : 'button'}
+                      href={!hasChildren ? item.path : undefined}
+                      onClick={hasChildren ? () => toggleDropdown(item.title) : undefined}
+                      sx={{
+                        pl: 2,
+                        py: 1,
+                        gap: 2,
+                        pr: 1.5,
+                        borderRadius: 0.75,
+                        typography: 'body2',
+                        fontWeight: 'fontWeightMedium',
+                        color: 'var(--layout-nav-item-color)',
+                        minHeight: 'var(--layout-nav-item-height)',
+                        ...(isActived && {
+                          fontWeight: 'fontWeightSemiBold',
+                          bgcolor: 'var(--layout-nav-item-active-bg)',
+                          color: 'var(--layout-nav-item-active-color)',
+                          '&:hover': {
+                            bgcolor: 'var(--layout-nav-item-hover-bg)',
+                          },
+                        }),
+                      }}
+                    >
+                      <Box component="span" sx={{ width: 24, height: 24 }}>
+                        {item.icon}
+                      </Box>
 
-                    <Box component="span" flexGrow={1}>
-                      {item.title}
-                    </Box>
+                      <Box component="span" flexGrow={1}>
+                        {item.title}
+                      </Box>
 
-                    {item.info && item.info}
-                  </ListItemButton>
-                </ListItem>
+                      {hasChildren ? (
+                        openDropdowns[item.title] ? (
+                          <ExpandLess />
+                        ) : (
+                          <ExpandMore />
+                        )
+                      ) : null}
+                    </ListItemButton>
+                  </ListItem>
+
+                  {item.children && (
+                    <Collapse in={openDropdowns[item.title]} timeout="auto" unmountOnExit>
+                      <Box component="ul" sx={{ pl: 4 }}>
+                        {item.children.map((child) => (
+                          <ListItemButton
+                            key={child.title}
+                            component={RouterLink}
+                            href={child.path}
+                            sx={{
+                              pl: 2,
+                              py: 1,
+                              borderRadius: 0.75,
+                              typography: 'body2',
+                              fontWeight: pathname === child.path ? 'bold' : 'normal',
+                              color: pathname === child.path ? 'primary.main' : 'text.secondary',
+                              '&:hover': { bgcolor: 'action.hover' },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                              {child.icon}
+                              {child.title}
+                            </Box>
+                          </ListItemButton>
+                        ))}
+                      </Box>
+                    </Collapse>
+                  )}
+                </Box>
               );
             })}
           </Box>

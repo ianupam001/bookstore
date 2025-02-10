@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import { useEffect, useState, useCallback } from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
-import { _timeline } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Dashboard } from 'src/api/dashboard';
-import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
 import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
-import { AnalyticsWebsiteVisits } from '../analytics-website-visits'; // Re-added component
-
-// ----------------------------------------------------------------------
+import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
 
 export function OverviewAnalyticsView() {
   const [dashStats, setDashStats] = useState<any>();
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     const response = await Dashboard.stats();
     if (response) {
       setDashStats(response.data);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStats();
-  }, []); // Empty dependency array to run only on mount
+  }, [fetchStats]);
 
   return (
     <DashboardContent maxWidth="xl">
@@ -34,64 +34,59 @@ export function OverviewAnalyticsView() {
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Total Orders"
-            percent={0} // You can update it based on your data if needed
-            total={dashStats?.totalOrders || 0}
+            title="Total books"
+            percent={0}
+            total={dashStats?.totalBooks || 0}
             icon={<img alt="icon" src="/assets/icons/glass/ic-glass-bag.svg" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: dashStats?.monthlySales || [], // Using monthlySales data for the series
+              series: dashStats?.monthlySales || [5, 3, 5, 7, 9, 11],
             }}
           />
         </Grid>
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Total Sales"
-            percent={0} // You can update it based on your data if needed
-            total={dashStats?.totalSales || 0}
+            title="Authors"
+            percent={0}
+            total={dashStats?.totalAuthors || 0}
             color="secondary"
             icon={<img alt="icon" src="/assets/icons/glass/ic-glass-users.svg" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: dashStats?.monthlySales || [], // Using monthlySales data for the series
+              series: dashStats?.monthlySales || [6, 1, 5, 7, 9, 11],
             }}
           />
         </Grid>
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Trending Books"
-            percent={0} // You can update it based on your data if needed
-            total={dashStats?.trendingBooks || 0}
+            title="Pulishers"
+            percent={0}
+            total={dashStats?.totalPublishers || 0}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic-glass-buy.svg" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: dashStats?.monthlySales || [], // Using monthlySales data for the series
+              series: dashStats?.monthlySales || [1, 8, 5, 7, 9, 11],
             }}
           />
         </Grid>
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Total Books"
-            percent={0} // You can update it based on your data if needed
-            total={dashStats?.totalBooks || 0}
+            title="Categories"
+            percent={0}
+            total={dashStats?.totalCategories || 0}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic-glass-message.svg" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: dashStats?.monthlySales || [], // Using monthlySales data for the series
+              series: dashStats?.monthlySales || [1, 8, 5, 7, 9, 11],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AnalyticsOrderTimeline title="Order timeline" list={_timeline} />
-        </Grid>
-
-        {/* Re-added Website Visits Widget */}
         <Grid xs={12} md={6} lg={8}>
           <AnalyticsWebsiteVisits
             title="Website Visits"
@@ -99,13 +94,59 @@ export function OverviewAnalyticsView() {
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
               series: [
-                { name: 'Team A', data: dashStats?.monthlySales || [] }, // Using monthlySales for Team A
-                { name: 'Team B', data: dashStats?.monthlySales || [] }, // Using monthlySales for Team B
+                { name: 'Team A', data: dashStats?.monthlySales || [1, 8, 5, 7, 9, 11] },
+                { name: 'Team B', data: dashStats?.monthlySales || [1, 8, 5, 7, 9, 11] },
               ],
             }}
           />
         </Grid>
       </Grid>
+
+      {/* New section for settings buttons */}
+      <Box sx={{ mt: 4 }}>
+        <Grid container spacing={2}>
+          <Grid xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ height: '100%', minHeight: 64 }}
+            >
+              Affiliate Stores Setting
+            </Button>
+          </Grid>
+          <Grid xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              sx={{ height: '100%', minHeight: 64 }}
+            >
+              Google Ads Settings
+            </Button>
+          </Grid>
+          <Grid xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="warning"
+              fullWidth
+              sx={{ height: '100%', minHeight: 64 }}
+            >
+              SEO Settings
+            </Button>
+          </Grid>
+          <Grid xs={12} sm={6} md={3}>
+            <Button
+              variant="contained"
+              color="error"
+              fullWidth
+              sx={{ height: '100%', minHeight: 64 }}
+            >
+              Master Settings
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
     </DashboardContent>
   );
 }
