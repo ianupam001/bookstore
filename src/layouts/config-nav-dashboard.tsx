@@ -23,6 +23,7 @@ export const navData = [
         path: '/promotions/home-banners',
         icon: <Image size={18} />,
       },
+      
       {
         title: 'Product Page Banners',
         path: '/promotions/product-banners',
