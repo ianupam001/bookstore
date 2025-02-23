@@ -22,6 +22,8 @@ export const ProductDetails = lazy(() => import('src/sections/product/product-de
 export const ComingSoon = lazy(() => import('src/sections/coming-soon/coming-soon'));
 export const HomePageBanners = lazy(() => import('src/pages/home-banner'));
 export const ProductPageBanners = lazy(() => import('src/pages/product-banner'));
+export const AuthorsPageView = lazy(() => import('src/pages/authors'));
+export const PublishersPageView = lazy(() => import('src/pages/publishers'));
 
 // ----------------------------------------------------------------------
 
@@ -72,6 +74,8 @@ export function Router() {
             { path: 'books/:id', element: <ProductDetails /> },
             { path: 'promotions/home-banners', element: <HomePageBanners /> },
             { path: 'promotions/product-banners', element: <ProductPageBanners /> },
+            { path: 'authors', element: <AuthorsPageView /> },
+            { path: 'publishers', element: <PublishersPageView /> },
           ],
         },
       ],
