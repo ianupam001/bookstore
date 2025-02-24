@@ -19,8 +19,8 @@ export default function App() {
     <Fab
       size="medium"
       aria-label="Github"
-      href="https://github.com/ianupam001"
-      target='_blank'
+      href="https://wa.me/+918738802569"
+      target="_blank"
       sx={{
         zIndex: 9,
         right: 20,
@@ -30,9 +30,10 @@ export default function App() {
         position: 'fixed',
         bgcolor: 'grey.800',
         color: 'common.white',
+        '&:hover': { bgcolor: 'grey.900' },
       }}
     >
-      <Iconify width={24} icon="eva:github-fill" />
+      <Iconify width={24} icon="ic:sharp-whatsapp" />
     </Fab>
   );
 

@@ -24,6 +24,8 @@ export const HomePageBanners = lazy(() => import('src/pages/home-banner'));
 export const ProductPageBanners = lazy(() => import('src/pages/product-banner'));
 export const AuthorsPageView = lazy(() => import('src/pages/authors'));
 export const PublishersPageView = lazy(() => import('src/pages/publishers'));
+export const BulkImportPage = lazy(() => import('src/pages/bulk-import'));
+export const BulkExportPage = lazy(() => import('src/pages/bulk-export'));
 
 // ----------------------------------------------------------------------
 
@@ -70,12 +72,17 @@ export function Router() {
             { path: 'user', element: <UserPage /> },
             { path: 'books', element: <ProductsPage /> },
             { path: 'blog', element: <BlogPage /> },
-            { path: 'import', element: <ComingSoon /> },
             { path: 'books/:id', element: <ProductDetails /> },
             { path: 'promotions/home-banners', element: <HomePageBanners /> },
             { path: 'promotions/product-banners', element: <ProductPageBanners /> },
             { path: 'authors', element: <AuthorsPageView /> },
             { path: 'publishers', element: <PublishersPageView /> },
+            { path: 'bulk-import', element: <BulkImportPage /> },
+            { path: 'bulk-export', element: <BulkExportPage /> },
+            { path: 'bulk-update', element: <ComingSoon /> },
+            { path: 'bulk-delete', element: <ComingSoon /> },
+            { path: 'custom-update', element: <ComingSoon /> },
+            { path: 'export-isbn', element: <ComingSoon /> },
           ],
         },
       ],
